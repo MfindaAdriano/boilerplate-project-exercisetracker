@@ -10,11 +10,11 @@
   <body>
     <div class="container">
       <h1>Exercise tracker</h1>
-      <form action="/api/users" method="post">
+      <form action="/api/users" method="post" id="user-form">
         <h2>Create a New User</h2>
         <p><code>POST /api/users</code></p>
         <input id="uname" type="text" name="username" placeholder="username" />
-        <input type="submit" value="Submit" />
+        <input type="submit" value="Submit" id="add-user-bt" />
       </form>
       <form action="/api/users/:_id/exercises" id="exercise-form" method="post">
         <h2>Add exercises</h2>
@@ -42,5 +42,38 @@
         exerciseForm.submit();
       });
     </script>
+      
+    <!--
+    <script>
+      const userForm = document.querySelector("#user-form");
+      const addUserBt = document.querySelector("#add-user-bt");
+
+      //add an event handler method to the userForm
+      //userForm.addEventListener("submit", (event) => {
+      addUserBt.addEventListener("click", (event) => {
+        //event.stopPropagation();
+        //event.preventDefault();
+        //userForm.preventDefault();
+        //alert("Clicked user-form");
+      usernameInput = document.querySelector("#uname");
+
+        // username input is empty, then
+        if(usernameInput.value === ""){
+          usernameInput.style = `color: red;`;
+          usernameInput.value = "Please, type the user name ";
+
+          //set time interval to clear username text input field
+          setInterval(() => {
+            usernameInput.style = `color: black;`;
+            usernameInput.value = "";
+          }, 2000);
+        }else{ //else if username input field is filled 
+          userForm.submit();
+        }
+      })
+        
+    </script>
+    -->
+
   </body>
 </html>

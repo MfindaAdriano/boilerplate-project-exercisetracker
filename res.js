@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const UserSchema = new mongoose.Schema({username: String});
 const UserModel = mongoose.model("users", UserSchema);
 
-const ExerciseSchema = new mongoose.Schema({username: String, description: String, duration: Number, date: String, user_id: String});
+const ExerciseSchema = new mongoose.Schema({username: String, description: String, duration: Number, date: Date, user_id: String});
 const ExerciseModel = mongoose.model("exercises", ExerciseSchema);
 
 //functions are defined here
@@ -48,7 +48,7 @@ const postExercise = async (req, res) => {
     const duration = parseInt(req.body.duration);
 
     const reg = /^\d{4}-\d{2}-\d{2}$/;
-    const date = (req.body.date === "")?(new Date()).toDateString():reg.test(req.body.date)?(new Date(req.body.date)).toDateString():new Date().toDateString();
+    const date = (req.body.date === "")?(new Date()):reg.test(req.body.date)?(new Date(req.body.date)):null;
     
     
     const user = await UserModel.find({_id: userId});
@@ -66,7 +66,7 @@ const postExercise = async (req, res) => {
         const newExercise = userExercises[userExercises.length - 1];
 
         // object to render
-        const objectToRender = {username: newExercise.username, description: newExercise.description, duration: newExercise.duration, date: newExercise.date, _id: newExercise.user_id}
+        const objectToRender = {username: newExercise.username, description: newExercise.description, duration: newExercise.duration, date: newExercise.date.toDateString(), _id: newExercise.user_id}
 
         //render the result
         res.json(objectToRender)
@@ -93,7 +93,7 @@ const getUserLog = async (req, res) => {
         //const userExercises = await ExerciseModel.find({user_id: userId});
         const newExercise = userExercises[userExercises.length - 1];
 
-        const log = userExercises.map((obj, i, ar) => ({description: obj.description, duration: obj.duration, date: obj.date}) );
+        const log = userExercises.map((obj, i, ar) => ({description: obj.description, duration: obj.duration, date: obj.date.toDateString()}) );
         // object to render
         const objectToRender = {username: newExercise.username, count: userExercises.length, _id: newExercise.user_id, log: log};
 

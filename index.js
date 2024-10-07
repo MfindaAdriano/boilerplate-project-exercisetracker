@@ -53,7 +53,7 @@ app.post('/api/users', async (req, res) => {
   }else{
     //Now get the userdata from the DB
     userData = await UserModel.findOne({username: username}); 
-    res.json({username: userData.username, _id: userData._id});
+    res.send({username: userData.username, _id: userData._id});
     //res.send("The User already exists");
   }
   
@@ -65,7 +65,7 @@ app.get("/api/users", async (req, res) => {
 
   const users1 = users.map((el,i,ar) => ({username:el.username, _id:el._id}));
 
-  res.json(users1);
+  res.send(users1);
 });
 
 // Post an exercise using a user _id
@@ -97,7 +97,7 @@ app.post("/api/users/:_id/exercises", async (req, res) =>{
       .catch((error) => console.error(`An Error occurred while trying to save the new exercise into DB:\n${error}`));
 
     
-    newInputData = {username: userData.username, _id: ID, description: req.body.description, duration: req.body.duration, date: req.date };
+    newInputData = {username: userData.username, _id: ID, description: req.body.description, duration: req.body.duration, date: date.toDateString()};
     // render the data
     res.send(newInputData);
 
@@ -150,8 +150,8 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     
     userLog = {
       username: userData[0].username,
-      _id: userData[0].id_user,
       count: userData.length,
+      _id: userData[0].id_user,
       log: logArray,
     }
   
@@ -162,7 +162,7 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     //res.send((new Date(req.query.from).getTime() * 2).toString()); //userData[0].date);
   
     //render full exercise log of this user
-    res.json(userLog);
+    res.send(userLog);
   }else{
 
     const userLog = {

@@ -48,7 +48,7 @@ const postExercise = async (req, res) => {
     const duration = parseInt(req.body.duration);
 
     const reg = /^\d{4}-\d{2}-\d{2}$/;
-    const date = (req.body.date === "")?(new Date()):reg.test(req.body.date)?(new Date(req.body.date)):null;
+    const date = (req.body.date === "")?(new Date()):reg.test(req.body.date)?(new Date(req.body.date)):new Date();
     
     
     const user = await UserModel.find({_id: userId});
@@ -84,7 +84,19 @@ const postExercise = async (req, res) => {
 const getUserLog = async (req, res) => {
 
     const userId = req.params._id;
-    const userExercises = await ExerciseModel.find({user_id: userId});
+    let userExercises;
+    
+    if(req.query.from === undefined)
+        userExercises = await ExerciseModel.find({user_id: userId}).sort({date: 1});
+    else{
+        userExercises = await ExerciseModel.find({
+            $and:[
+                {user_id: userId},
+                {date:{$lte: new Date(req.query.from)}},
+                {date: {$gte: new Date(req.query.to)}}
+            ]
+        }).limit(parseInt(req.query.limit)).sort({date: 1});;
+    }
 
     if(userExercises[0]){
         //const userName = user[0].username;
@@ -99,7 +111,7 @@ const getUserLog = async (req, res) => {
 
         //render the result
         console.log(objectToRender)
-        res.json(objectToRender)
+        res.send(objectToRender)
        
     }//else{console.log("The user does not exist!");}
 }

@@ -1,3 +1,70 @@
+//exercise_tracker challenge, approach
+
+//dotenv file configuration
+require("dotenv").config();
+
+// import libraries
+const express = require("express");
+const cors = require("cors");
+//const mongoose = require("mongoose");
+const {mongoose, createUser, getAllUsers, postExercise, getUserLog} = require("./res.js");
+
+// create an express app using the PORT defined in .env file
+const app = express();
+const port = process.env.PORT;
+//define the root folder
+const rootFolder = process.cwd();
+
+//Database config **********************
+//connect mongoose database
+mongoose.connect(process.env.DB_HOST)
+  .then(() => console.log("DB connected with success!"))
+  .catch((error) => console.log(`Error to connect the DB: ${error}`));
+// Mongo DB configuration ends here **************
+
+// use app.use() to mount public folder as static folder, where static files dwell
+app.use(express.static(rootFolder + "/public"));
+app.use(cors({optionsSuccessStatus: 200}));
+
+// use json and encoded URL extended set to false
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+
+// Express app starts to listen to the dedicated port
+app.listen(port, () => console.log(`The Express App is listen to the port ${port}`));
+
+// create roots
+app.get("/", (req, res) => {
+  console.log(`A Client made a request for ${req.url}`);
+
+  res.sendFile(rootFolder + "/views/index.html");
+});
+
+
+// POST /api/users route to create a new user
+app.post('/api/users', createUser);
+
+// GET /api/users to get a array with a list of all users
+app.get('/api/users', getAllUsers);
+
+// POST /api/users/:_id/exercises
+app.post('/api/users/:_id/exercises', postExercise);
+
+// GET /api/users/:_id/logs to retrieve a full exercise log of any user
+app.get('/api/users/:_id/logs', getUserLog);
+
+
+
+
+
+
+
+
+
+
+
+//old approach
+/*
 //dotenv configuration
 require('dotenv').config();
 const express = require('express')
@@ -181,3 +248,4 @@ app.get("/api/users/:_id/logs", async (req, res) => {
 const listener = app.listen(process.env.PORT, () => {
   console.log('Your app is listening on port ' + JSON.stringify(listener.address()))
 })
+  */

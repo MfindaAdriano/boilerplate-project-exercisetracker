@@ -1,0 +1,108 @@
+//import libraries
+const mongoose = require('mongoose');
+// MongoDB configurations
+//create UserSchema e UserModel
+const UserSchema = new mongoose.Schema({username: String});
+const UserModel = mongoose.model("users", UserSchema);
+
+const ExerciseSchema = new mongoose.Schema({username: String, description: String, duration: Number, date: String, user_id: String});
+const ExerciseModel = mongoose.model("exercises", ExerciseSchema);
+
+//functions are defined here
+
+//function to create a new user
+const createUser = async (req, res) => {
+    console.log(req.body.username);
+    const userName = req.body.username;
+
+    
+    if(userName !== ""){ //if name text is not empty
+
+        const newUser = new UserModel({username:userName});
+        await newUser.save();
+        //now get the document we just saved to the DB
+        newUserData = await UserModel.find({"username": userName});
+        
+        // print data related to the new user in the DB
+        //console.log(newUserData);
+        res.json(newUserData[0]);
+    }
+    
+
+}
+// end of function to create a new user
+
+//function to get all the users in the database
+const getAllUsers = async (req, res) => {
+    allUsers = await UserModel.find();
+    res.json(allUsers);
+    //console.log(allUsers);
+
+}
+// end of function to get all users
+
+// function to post exercise
+const postExercise = async (req, res) => {
+    const userId = req.params._id;
+    const description = req.body.description;
+    const duration = parseInt(req.body.duration);
+
+    const reg = /^\d{4}-\d{2}-\d{2}$/;
+    const date = (req.body.date === "")?(new Date()).toDateString():reg.test(req.body.date)?(new Date(req.body.date)).toDateString():new Date().toDateString();
+    
+    
+    const user = await UserModel.find({_id: userId});
+
+    if(user[0]){
+        const userName = user[0].username;
+
+        const exercise = new ExerciseModel({username: userName, description: description, duration: duration, date: date, user_id: userId})
+
+        // save the new exercise to the Database
+        await exercise.save();
+
+        // get the exercise we just saved
+        const userExercises = await ExerciseModel.find({user_id: userId});
+        const newExercise = userExercises[userExercises.length - 1];
+
+        // object to render
+        const objectToRender = {username: newExercise.username, description: newExercise.description, duration: newExercise.duration, date: newExercise.date, _id: newExercise.user_id}
+
+        //render the result
+        res.json(objectToRender)
+        //console.log(objectToRender)
+
+        //console.log(newExercise);
+
+        //console.log({username: userName, description: description, duration:duration, date: date, _id: userId});
+    }//else{console.log("The user does not exist!");}
+    //console.log("You Name: ", req.params._id);
+}
+// end of function to post exercise
+
+// function to retrieve the full exercise log of any user
+const getUserLog = async (req, res) => {
+
+    const userId = req.params._id;
+    const userExercises = await ExerciseModel.find({user_id: userId});
+
+    if(userExercises[0]){
+        //const userName = user[0].username;
+
+        // get the array of exercises objects
+        //const userExercises = await ExerciseModel.find({user_id: userId});
+        const newExercise = userExercises[userExercises.length - 1];
+
+        const log = userExercises.map((obj, i, ar) => ({description: obj.description, duration: obj.duration, date: obj.date}) );
+        // object to render
+        const objectToRender = {username: newExercise.username, count: userExercises.length, _id: newExercise.user_id, log: log};
+
+        //render the result
+        console.log(objectToRender)
+        res.json(objectToRender)
+       
+    }//else{console.log("The user does not exist!");}
+}
+
+//import 
+module.exports = {mongoose, createUser, getAllUsers, postExercise, getUserLog};

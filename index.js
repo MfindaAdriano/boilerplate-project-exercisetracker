@@ -7,7 +7,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 //const mongoose = require("mongoose");
-const {mongoose, createUser, getAllUsers, postExercise, getUserLog} = require("./res.js");
+const {mongoose, createUser, getAllUsers, postExercise, getUserLog, getUserLog1} = require("./res.js");
 
 // create an express app using the PORT defined in .env file
 const app = express();
@@ -48,10 +48,11 @@ app.post('/api/users', createUser);
 app.get('/api/users', getAllUsers);
 
 // POST /api/users/:_id/exercises
-app.post('/api/users/:_id/exercises', postExercise);
+app.post('/api/users/:_id/exercises', postExercise); 
 
 // GET /api/users/:_id/logs to retrieve a full exercise log of any user
-app.get('/api/users/:_id/logs', getUserLog);
+//app.get('/api/users/:_id/logs?', getUserLog);
+app.get('/api/users/:_id/logs?', getUserLog1);
 
 
 

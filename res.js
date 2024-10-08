@@ -116,5 +116,59 @@ const getUserLog = async (req, res) => {
     }//else{console.log("The user does not exist!");}
 }
 
+
+
+/***************** */
+const getUserLog1 = async (req, res) => {
+    try{
+    console.log(req.params);
+    console.log(req.query);
+    let user = await UserModel.findById(req.params._id).exec();
+    let exercise = await ExerciseModel.find({user_id : req.params._id})
+    .select('-_id -__v -user_id')
+    .exec();
+
+    if(typeof user.username !== 'undefined' && exercise.length > 0){
+      
+        if((req.query.from) && (req.query.to)){
+          exercise = exercise.filter((d)=> (Date.parse(d.date) >= Date.parse(req.query.from)) && (Date.parse(d.date) <= Date.parse(req.query.to)));
+              }
+              //check if index is smaller then LIMIT
+              if(req.query.limit){
+                let limit = parseInt(req.query.limit)
+                exercise = exercise.filter((d,i)=> i < limit);
+              }
+        var data = {
+          username: user.username,
+          count: parseInt(exercise.length),
+          _id: user._id
+        }
+        for(i = 0; i < exercise.length; i++ ){
+          var date_obj = new Date(exercise[i]['date']);
+          let description = exercise[i]['description'];
+          let duration = exercise[i]['duration'];
+          
+          exercise[i] = {};
+          exercise[i]['description'] = description;
+          exercise[i]['duration'] = parseInt(duration);
+          exercise[i]['date'] = date_obj.toDateString();
+        }
+          data['log'] = exercise;
+        if(exercise.length > 0){
+          res.json(data);
+        }else{
+           res.json({error:'User exercise found'});
+        }
+      }else{
+        res.json({error:'User Id not found'});
+      }
+
+
+    }catch(err){
+        console.log(err)
+    }
+}
+/**************** */
+
 //import 
-module.exports = {mongoose, createUser, getAllUsers, postExercise, getUserLog};
+module.exports = {mongoose, createUser, getAllUsers, postExercise, getUserLog, getUserLog1};
